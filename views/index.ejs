@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Movie Database</title>
+  <style>
+    /* public/styles.css */
+
+/* Apply a reset to remove default padding and margin */
+body, h1, form, ul, li {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f0f0f0;
+}
+
+h1 {
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  padding: 10px;
+  margin: 0;
+}
+
+form {
+  max-width: 400px;
+  margin: 0 auto;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}
+
+form label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+form input {
+  width: 95%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px; 
+}
+
+form button[type="submit"] {
+  width: 100%;
+  padding: 10px;
+  background-color: #333;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+form button[type="submit"]:hover {
+  background-color: #222;
+}
+
+ul {
+  list-style: none;
+  margin: 20px 0;
+  padding: 0;
+}
+
+li {
+  background-color: #fff;
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 5px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Style the delete button */
+form button[type="submit"] {
+  background-color: #ff5733;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 5px 10px;
+  font-weight: bold;
+}
+
+/* Add hover effect for the delete button */
+form button[type="submit"]:hover {
+  background-color: #ff3016;
+}
+
+  </style>
+</head>
+<body>
+  <h1>Movie Database</h1>
+  <form action="/add" method="POST">
+    <label for="title">Title:</label>
+    <input type="text" id="Title" name="title" required>
+    <label for="barcode">Barcode:</label>
+    <input type="text" id="Barcode" name="barcode" required>
+    <button type="submit">Add Movie</button>
+  </form>
+  <form action="/search" method="GET">
+    <input type="text" name="q" placeholder="Search movies" />
+    <button type="submit">Search</button>
+  </form>
+  <ul>
+    <% movies.forEach((movie) => { %>
+      <li>
+        ID:<%= movie.ID%> Title:<%= movie.Title %> (Barcode: <%= movie.Barcode %>)
+        <form action="/delete" method="POST" style="display: inline;">
+          <input type="hidden" name="id" value="<%= movie.ID %>"> <!-- Assuming "ID" is the name of the column -->
+          <button type="submit">Delete</button>
+        </form>
+        
+      </li>
+    <% }); %>
+  </ul> 
+</body>
+</html>
