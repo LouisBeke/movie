@@ -2,6 +2,11 @@ const express = require('express');
 const mysql = require('mysql2');
 const app = express();
 const port = 3000;
+const multer = require('multer');
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
+const jsQR = require('jsqr');
+
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
@@ -84,6 +89,40 @@ app.get('/search', (req, res) => {
     res.render('index', { movies: result });
   });
 });
+
+app.post('/scan', upload.single('barcodeImage'), (req, res) => {
+  if (!req.file) {
+      return res.status(400).send('No image uploaded. Make sure you selected an image file.');
+  }
+
+  const imageBuffer = req.file.buffer;
+
+  try {
+      // Log the image data to help with debugging
+      console.log('Image Data:', imageBuffer);
+
+      const qrCode = jsQR(new Uint8Array(imageBuffer), imageBuffer.width, imageBuffer.height);
+
+      if (qrCode) {
+          // QR code successfully decoded
+          const barcodeValue = qrCode.data;
+
+          // You can now use the barcode value in your application
+          console.log('Decoded barcode:', barcodeValue);
+
+          // Redirect or render a new page with the barcode value
+          res.render('scan-result', { barcodeValue });
+      } else {
+          // No QR code found
+          res.status(400).send('No QR code found in the image.');
+      }
+  } catch (error) {
+      console.error('Error processing the image:', error);
+      res.status(500).send('Error processing the image. Please ensure the image is in a supported format and contains a QR code.');
+  }
+});
+
+
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);

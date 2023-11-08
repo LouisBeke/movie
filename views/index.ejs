@@ -112,6 +112,10 @@ form button[type="submit"]:hover {
     <input type="text" name="q" placeholder="Search movies" />
     <button type="submit">Search</button>
   </form>
+  <form action="/scan" method="post" enctype="multipart/form-data">
+    <input type="file" name="barcodeImage">
+    <button type="submit">Scan Barcode</button>
+</form>
   <ul>
     <% movies.forEach((movie) => { %>
       <li>
