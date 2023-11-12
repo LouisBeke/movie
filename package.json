@@ -16,7 +16,8 @@
     "multer": "^1.4.5-lts.1",
     "mysql": "^2.18.1",
     "mysql2": "^3.6.3",
-    "quagga": "^0.12.1"
+    "quagga": "^0.12.1",
+    "node-webcam": "^0.8.2"
   },
   "description": ""
 }

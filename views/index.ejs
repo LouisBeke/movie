@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Movie Database</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
   <style>
     /* public/styles.css */
 
@@ -97,7 +98,7 @@ form button[type="submit"]:hover {
   background-color: #ff3016;
 }
 
-  </style>
+  </style>  
 </head>
 <body>
   <h1>Movie Database</h1>
@@ -112,9 +113,10 @@ form button[type="submit"]:hover {
     <input type="text" name="q" placeholder="Search movies" />
     <button type="submit">Search</button>
   </form>
-  <form action="/scan" method="post" enctype="multipart/form-data">
-    <input type="file" name="barcodeImage">
+  <form action="/scan" method="POST" enctype="multipart/form-data">
+    <input type="file" name="barcodeImage" accept="image/*">
     <button type="submit">Scan Barcode</button>
+  </form>
 </form>
   <ul>
     <% movies.forEach((movie) => { %>

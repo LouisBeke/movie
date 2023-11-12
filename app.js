@@ -6,12 +6,20 @@ const multer = require('multer');
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 const jsQR = require('jsqr');
+const NodeWebcam = require('node-webcam');
 
+// Set up webcam
+const Webcam = NodeWebcam.create({
+  width: 1280,
+  height: 720,
+  quality: 100,
+  output: 'jpeg',
+  verbose: true,
+});
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 app.set('view engine', 'ejs');
-
 
 const db = mysql.createConnection({
   host: '64.227.79.50',
@@ -26,6 +34,19 @@ db.connect((err) => {
     return;
   }
   console.log('Connected to MySQL database as id ' + db.threadId);
+});
+
+const movieTableSchema = `
+    CREATE TABLE IF NOT EXISTS movies (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        barcode VARCHAR(255) NOT NULL
+    );
+`;
+
+db.query(movieTableSchema, (err, results) => {
+    if (err) throw err;
+    console.log('Movies table created');
 });
 
 app.get('/', (req, res) => {
@@ -90,39 +111,31 @@ app.get('/search', (req, res) => {
   });
 });
 
-app.post('/scan', upload.single('barcodeImage'), (req, res) => {
-  if (!req.file) {
-      return res.status(400).send('No image uploaded. Make sure you selected an image file.');
-  }
+// Add a new route for capturing barcode from camera
+app.get('/capture', (req, res) => {
+  Webcam.capture('barcode-image', (err, data) => {
+    if (err) {
+      console.error('Error capturing image:', err);
+      res.status(500).send('Error capturing image');
+    } else {
+      // Read the captured image file
+      const imageBuffer = fs.readFileSync('barcode-image.jpg');
 
-  const imageBuffer = req.file.buffer;
+      // Use jsQR to decode the barcode from the image
+      const code = jsQR(imageBuffer, imageBuffer.width, imageBuffer.height);
 
-  try {
-      // Log the image data to help with debugging
-      console.log('Image Data:', imageBuffer);
+      if (code) {
+        console.log('Decoded barcode:', code.data);
 
-      const qrCode = jsQR(new Uint8Array(imageBuffer), imageBuffer.width, imageBuffer.height);
-
-      if (qrCode) {
-          // QR code successfully decoded
-          const barcodeValue = qrCode.data;
-
-          // You can now use the barcode value in your application
-          console.log('Decoded barcode:', barcodeValue);
-
-          // Redirect or render a new page with the barcode value
-          res.render('scan-result', { barcodeValue });
+        // Render a page with the decoded barcode
+        res.render('barcode', { barcode: code.data });
       } else {
-          // No QR code found
-          res.status(400).send('No QR code found in the image.');
+        console.log('No barcode found in the image');
+        res.status(404).send('No barcode found in the image');
       }
-  } catch (error) {
-      console.error('Error processing the image:', error);
-      res.status(500).send('Error processing the image. Please ensure the image is in a supported format and contains a QR code.');
-  }
+    }
+  });
 });
-
-
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
